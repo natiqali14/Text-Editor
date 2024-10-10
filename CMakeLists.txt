@@ -23,7 +23,7 @@ include_directories(
 
     ${CMAKE_SOURCE_DIR}/src/WindowSystem
     ${CMAKE_SOURCE_DIR}/src
-    ${CMAKE_SOURCE_DIR}/src/CharacterSystem
+    ${CMAKE_SOURCE_DIR}/src/Clock
     
 )
 
@@ -36,6 +36,8 @@ file(GLOB_RECURSE SOURCES
     "${CMAKE_SOURCE_DIR}/src/WindowSystem/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/backend/CharacterSystem/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/backend/Utils/*.cpp"
+    "${CMAKE_SOURCE_DIR}/src/backend/*.cpp"
+    "${CMAKE_SOURCE_DIR}/src/Clock/*.cpp"
 
     "${CMAKE_SOURCE_DIR}/glad.c"
 )

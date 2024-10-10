@@ -3,7 +3,6 @@
 namespace Cold
 {
     static SqaureManager* instance = nullptr;
-
     void SqaureManager::initialise()
     {
         instance = new SqaureManager;

@@ -1,6 +1,6 @@
 #include "Sqaure.h"
 #include <iostream>
-
+#include "../Camera.h"
 namespace Cold
 {
     const f32 Sqaure::sqaure_data[24] ={
@@ -69,17 +69,19 @@ namespace Cold
         glBindVertexArray(vao);
        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
         glUseProgram(program_id);
-        glActiveTexture(GL_TEXTURE0 + 0);
-        glBindTexture(GL_TEXTURE_2D, tex_id);
-        u32 loci = glGetUniformLocation(program_id, "frameTexture");
-        glUniform1i(loci+0, 0);
+        if (tex_id  != 0) {
+            glActiveTexture(GL_TEXTURE0 + 0);
+            glBindTexture(GL_TEXTURE_2D, tex_id);
+            u32 loci = glGetUniformLocation(program_id, "frameTexture");
+            glUniform1i(loci+0, 0);
+        }
+        
 
         glm::mat4 model = glm::mat4(1.0);
         model = glm::translate(model, glm::vec3(position.x, position.y, 0.0f));
-        model = glm::translate(model,glm::vec3(scale.x/2,scale.y/2,0));
+        model = glm::translate(model,glm::vec3(scale.x,scale.y,0));
         model = glm::scale(model, glm::vec3(scale.x, scale.y, 1.0f));
-        auto a =  glm::ortho(0.0f,(float)SCR_WIDTH,(float)SCR_HEIGHT,0.0f,-1.0f,1.0f);
-        auto m = a * model;
+        auto m = Camera::get_camera()->get_camera_projection() * model;
         i32 loc = glGetUniformLocation(program_id, "model");
         glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(m));
 

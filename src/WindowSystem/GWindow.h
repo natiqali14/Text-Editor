@@ -26,6 +26,7 @@ public:
 private:
     bool b_shit_pressed{false};
     bool b_caps_lock_on{false};
+    bool b_some_key_pressed{false};
 
     void mouse_input_callback(GLFWwindow* window, f64 x_pos, f64 y_pos);
 

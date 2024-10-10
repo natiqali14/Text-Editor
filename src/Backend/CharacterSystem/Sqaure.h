@@ -29,4 +29,3 @@ namespace Cold
     };
     
 } // namespace Cold
-

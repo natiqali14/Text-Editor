@@ -52,7 +52,6 @@ GLFWwindow *GWindow::get_window_ptr()
 
 void GWindow::key_input_callback(GLFWwindow *w, int key, int scancode, int action, int mods)
 {
-   // TODO
     if (key == GLFW_KEY_ESCAPE) {
         glfwSetWindowShouldClose(window, 1);
     }
@@ -68,12 +67,37 @@ void GWindow::key_input_callback(GLFWwindow *w, int key, int scancode, int actio
 
 
     case 32 ... 126: {
+        if (action == GLFW_RELEASE) break;
         if (key >= 65 && key <= 90) {
             if (!(b_shit_pressed)) key += 32;
             page->add_character(key);
         }
         else
             page->add_character(key);
+        break;
+    }
+
+    case GLFW_KEY_BACKSPACE: {
+        if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+            page->delete_current_character();
+        }
+        
+        break;
+    }
+
+    case GLFW_KEY_ENTER: {
+        if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+            page->add_row();
+        }
+    }
+    case GLFW_KEY_RIGHT: {
+        if (action == GLFW_RELEASE) return;
+        page->cursor_move_forward();
+        break;
+    }
+    case GLFW_KEY_LEFT: {
+        if (action == GLFW_RELEASE) return;
+        page->cursor_move_backward();
         break;
     }
     
@@ -85,7 +109,6 @@ void GWindow::key_input_callback(GLFWwindow *w, int key, int scancode, int actio
 void GWindow::poll_input_events()
 {
     glfwPollEvents();
-    
     // TODO
 }
 

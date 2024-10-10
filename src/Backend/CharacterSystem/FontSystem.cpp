@@ -18,6 +18,7 @@ namespace Cold
         }
 
         // Set the font size (e.g., 48 pixels)
+        instance->current_pixel_size = editor_settings.font_pixel_size;
         FT_Set_Pixel_Sizes(instance->font_face, 0, instance->current_pixel_size);
 
         prepare_all_characters();

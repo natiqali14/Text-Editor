@@ -27,12 +27,20 @@ namespace Cold
 
         instance->rect = new Sqaure(instance->current_program_id);
         
-        instance->projection = glm::ortho(0.0f,(float)SCR_WIDTH,0.f,(float)SCR_HEIGHT,-1.0f,1.0f);
-
-        i32 loc = glGetUniformLocation(instance->current_program_id, "projection");
-        glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(instance->projection));
         file.close();
         file2.close();
+
+        // -------- for cursor ----------
+
+        std::ifstream file3 ("/Users/frio/Desktop/text_editor/Shaders/cursor_frag.frag");
+        std::stringstream s3;
+        s3 << file3.rdbuf();
+        
+        std::string cursor_shader = s3.str();
+        instance->cursor_program_id = OpenGLUtility::compile_program(instance->vertex_shader.c_str(), cursor_shader.c_str());
+        instance->cursor_surface = new Sqaure(instance->cursor_program_id);
+
+        file3.close();
     }
 
     void RendererSystem::shutdown()
@@ -49,6 +57,16 @@ namespace Cold
     {
         u32 tex_id = FontSystem::get_texture(character);
         instance->rect->draw(tex_id, position, scale);
+    }
+
+    Sqaure *RendererSystem::get_surface()
+    {
+        return instance->rect;
+    }
+
+    Sqaure * RendererSystem::get_cursor_surface()
+    {
+    return instance->cursor_surface;
     }
 
 } // namespace Cold
