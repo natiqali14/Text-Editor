@@ -38,6 +38,7 @@ file(GLOB_RECURSE SOURCES
     "${CMAKE_SOURCE_DIR}/src/backend/Utils/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/backend/*.cpp"
     "${CMAKE_SOURCE_DIR}/src/Clock/*.cpp"
+    "${CMAKE_SOURCE_DIR}/src/FileHelper.cpp"
 
     "${CMAKE_SOURCE_DIR}/glad.c"
 )

@@ -1,30 +1,70 @@
 #include "Page.h"
 #include "RendererSystem.h"
 #include "../Camera.h"
+#include "../../FileHelper.h"
 #include <iostream>
+#include <sstream>
 namespace Cold
 {
     static f32 get_y_axis_row_offset() {
         return (editor_settings.line_spacing + (editor_settings.font_pixel_size * editor_settings.char_scale_factor));
     }
-    Page::Page()
+    Page::Page(i32 fd): current_fd(fd)
     {
         character_grid.push_back(RowData(580));
         cursor.current_position = {editor_settings.start_x_point,580};
     }
 
+    void Page::add_existing_content()
+    {
+        auto data = FileHelper::get_next_line(current_fd);
+        bool content  = data.first;
+        int i = 0;
+        while (content) {
+            if (i != 0) {
+                add_row();
+            }
+            i++;
+            for (auto c : data.second) {
+                add_character(c);
+            }
+            data = FileHelper::get_next_line(current_fd);
+            content = data.first;
+        }
+        FileHelper::reset_flags_for_writing(current_fd);
+        set_cursor_position({editor_settings.start_x_point, 580});
+        cursor.current_row = 0;
+        cursor.current_index = 0;
+        
+    }
+
+    void Page::write_back_data()
+    {
+        FileHelper::close_file_and_open_it_again(current_fd);
+        for (auto& buffer : character_grid) {
+            std::stringstream ss;
+            for (auto c_buffer : buffer.buffer) {
+                ss << c_buffer->get_character();
+            }
+            std::cout << ss.str() << "\n";
+            ss << '\n';
+            FileHelper::write_string(current_fd, ss.str());
+        }
+    }
 
     Page::~Page()
     {
-        
+        write_back_data();
     }
 
     void Page::add_character(Character entry)
     {
+        std::cout << "Page::add_character\n";
         current_state = ADD_CHARACTER;
+        auto current_row = character_grid[cursor.current_row];
         auto c = CharacterInfo::create_character_object(FontSystem::get_character_data(entry)
                                         , {10, 10}
-                                        , cursor.current_position
+                                        , {cursor.current_position.x, current_row.y_pos}
                                         , entry
                                         );
         u32 row_size = character_grid[cursor.current_row].buffer.size();
@@ -34,19 +74,19 @@ namespace Cold
             c->set_prev_obj(nullptr);
         }
         else {
-            auto prev_char = character_grid[cursor.current_row].buffer[cursor.current_index - 1];
+            auto prev_char = current_row.buffer[cursor.current_index - 1];
             c->set_prev_obj(prev_char);
         }
 
         /// checking if new character is adding between character not at the end
         if (cursor.current_index < row_size) {
-            auto next = character_grid[cursor.current_row].buffer[cursor.current_index];
+            auto next = current_row.buffer[cursor.current_index];
             next->set_prev_obj(c);  // updating next char's previous character
         
             auto prev = c;
             // updating the positions of next characters in current row [Shifting them by 1 character].
             for (int i = cursor.current_index; i < row_size; i++) {
-                auto next_char = character_grid[cursor.current_row].buffer[i];
+                auto next_char = current_row.buffer[i];
                 next_char->reset_character_position(prev->get_next_position());
                 prev = next_char;
             }
@@ -67,32 +107,58 @@ namespace Cold
     }
 
     void Page::add_row()
-    {
-        if (cursor.current_row == character_grid.size() - 1) {
-            f32 y_postion = cursor.current_position.y;
-            y_postion -= get_y_axis_row_offset();
-            character_grid.push_back(RowData());
-            cursor.current_row++;
-            cursor.current_index = 0;
-            set_cursor_position({editor_settings.start_x_point, y_postion});
-            character_grid[cursor.current_row].y_pos = cursor.current_position.y;
+    {   
+        f32 y_postion = cursor.current_position.y;
+        y_postion -= get_y_axis_row_offset();
+        if (cursor.current_row >= character_grid.size() -1) {
+            character_grid.push_back(RowData(y_postion));
         }
         else {
-            // TODO check this and update
-            character_grid.insert(character_grid.begin()+ cursor.current_row+1, RowData());
-            auto row = character_grid[cursor.current_row+1];
+            character_grid.insert(character_grid.begin() + cursor.current_row + 1, RowData(y_postion));
+        }
+        
+        auto& buffer_to_move = character_grid[cursor.current_row+1].buffer;
+        std::vector<CharacterSPtr> temp_buffer;
+        auto& current_buffer = character_grid[cursor.current_row].buffer;
+        if (cursor.current_index < current_buffer.size()) {
+            auto it = current_buffer.begin();
+            u32 current_buff_size = current_buffer.size();
+            current_buffer[cursor.current_index]->set_prev_obj(nullptr);
+            for (u32 i = cursor.current_index; i < current_buff_size; i++) {
+                temp_buffer.push_back(current_buffer[i]);
+            }
+    
+            current_buffer.erase(it + cursor.current_index, current_buffer.end());
+            
+            move_row(temp_buffer, buffer_to_move, y_postion);
+        }
+
+        f32 x_pos = editor_settings.start_x_point;
+        if (!buffer_to_move.empty()) {
+            x_pos = buffer_to_move[buffer_to_move.size() - 1]->get_next_position().x;
+        }
+        cursor.current_row++;
+        cursor.current_index = buffer_to_move.size();
+        set_cursor_position({x_pos, y_postion});
+
+        u32 next_row = cursor.current_row+1;
+        f32 row_offset = get_y_axis_row_offset();
+        for (u32 i = next_row; i < character_grid.size(); i++) {
+            f32 row_y_pos = character_grid[i].y_pos;
+            character_grid[i].y_pos = row_y_pos - row_offset;
+            for (auto& char_info : character_grid[i].buffer) {
+                char_info->reset_character_y_position(character_grid[i].y_pos);
+            }
         }
         
     }
 
-        void Page::move_row(u32 row_to_move, u32 target_row)
+        void Page::move_row(std::vector<CharacterSPtr>& buffer_to_move, std::vector<CharacterSPtr>& target_buffer, f32 y_pos)
         {
-            auto& buf = character_grid[target_row].buffer;
-            auto& buf_to_move = character_grid[row_to_move].buffer;
+            auto& buf = target_buffer;
+            auto& buf_to_move = buffer_to_move;
             u32 target_buffer_size = buf.size();
             u32 buf_to_move_size = buf_to_move.size();
-            f32 y_pos = character_grid[target_row].y_pos;
-            f32 x_pos;
             if (!buf_to_move.empty()) {
                 auto first_char_to_move = buf_to_move[0];
                 CharacterSPtr prev_char = nullptr;
@@ -114,24 +180,35 @@ namespace Cold
                     buf.push_back(buf_to_move[i]);
                 }
             }
-
-            if (buf.empty()) {
-                x_pos = editor_settings.start_x_point;
-            }
-            else {
-                x_pos = buf[buf.size() - 1]->get_next_position().x;
-            }
-
-            character_grid.erase( character_grid.begin() +row_to_move);
-            cursor.current_row = target_row;
-            cursor.current_index = buf.size();
-            set_cursor_position({x_pos, y_pos});
-
         }
 
     void Page::cursor_go_one_row_up()
     {
-        move_row(cursor.current_row, cursor.current_row - 1);
+        f32 y_pos = character_grid[cursor.current_row - 1].y_pos;
+        move_row(character_grid[cursor.current_row].buffer, character_grid[cursor.current_row - 1].buffer, y_pos);
+        u32 buffer_size = character_grid[cursor.current_row - 1].buffer.size();
+        glm::vec2 new_pos;
+        if (buffer_size > 0) {
+            new_pos.x = character_grid[cursor.current_row-1].buffer[buffer_size-1]->get_next_position().x;   
+        }
+        else {
+            new_pos.x = editor_settings.start_x_point;;
+        }
+        new_pos.y = y_pos;
+        character_grid.erase( character_grid.begin() + cursor.current_row);
+        cursor.current_row -= 1;
+        cursor.current_index = buffer_size;
+        set_cursor_position(new_pos);
+        u32 row = cursor.current_row+1;
+        f32 row_offset = get_y_axis_row_offset();
+        for (u32 i = row; i <= character_grid.size() - 1; i++) {
+            f32 row_y_pos = character_grid[i].y_pos;
+            for (auto& char_info : character_grid[i].buffer) {
+                f32 new_y_pos = row_offset + row_y_pos;
+                char_info->reset_character_y_position(new_y_pos);
+                character_grid[i].y_pos = new_y_pos;
+            }
+        }
     }
 
     void Page::run_loop()
@@ -143,7 +220,7 @@ namespace Cold
             }
         }
         f32 y_scale = editor_settings.font_pixel_size * editor_settings.char_scale_factor * 0.8;
-        RendererSystem::get_cursor_surface()->draw(0,cursor.current_position, {2, y_scale});
+        RendererSystem::get_cursor_surface()->draw(0,cursor.current_position, {.3, y_scale});
     }
 
     void Page::delete_current_character()
@@ -209,15 +286,16 @@ namespace Cold
         if (cursor.current_index <= 0) {
             // go up
             auto buff = character_grid[cursor.current_row - 1].buffer;
+            f32 y_pos = character_grid[cursor.current_row - 1].y_pos;
+            cursor.current_row--;
+            cursor.current_index = buff.size();
             if (buff.size() == 0) {
-                set_cursor_position({editor_settings.start_x_point ,cursor.current_position.y + get_y_axis_row_offset() });
+                set_cursor_position({editor_settings.start_x_point , y_pos});
             }
             else {
                 auto position = buff[buff.size() - 1]->get_next_position();
-                set_cursor_position(position);
+                set_cursor_position({position.x, y_pos});
             }
-            cursor.current_row--;
-            cursor.current_index = buff.size();
         }
         else {
             // go back same line
@@ -257,14 +335,16 @@ namespace Cold
 
         f32 camera_y_start = Camera::get_camera()->get_y_points().x;
         if (cursor.current_position.y < camera_y_start) {
-            f32 points = editor_settings.line_spacing + (editor_settings.font_pixel_size * editor_settings.char_scale_factor);
-            Camera::get_camera()->camera_move_down(points);
+            //f32 points = editor_settings.line_spacing + (editor_settings.font_pixel_size * editor_settings.char_scale_factor);
+            Camera::get_camera()->camera_move_down(position.y);
         }
 
         else if (cursor.current_position.y > (camera_y_start + editor_settings.screen_height)) {
-            f32 points = editor_settings.line_spacing + (editor_settings.font_pixel_size * editor_settings.char_scale_factor);
-            Camera::get_camera()->camera_move_up(points);
+            //f32 points = editor_settings.line_spacing + (editor_settings.font_pixel_size * editor_settings.char_scale_factor);
+            Camera::get_camera()->camera_move_up(position.y);
         }
+
+        std::cout << "x " << cursor.current_position.x << " y " << cursor.current_position.y << " current row " << cursor.current_row << " Current index " << cursor.current_index << "\n";
         
     }
 

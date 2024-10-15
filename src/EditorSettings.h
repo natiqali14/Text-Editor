@@ -7,7 +7,7 @@ struct EditorSettings {
 
     f32 font_pixel_size {100};
 
-    f32 char_scale_factor {0.12};
+    f32 char_scale_factor {0.07};
 
     f32 line_spacing {10.f};
     f32 offset_on_delete_char{40.f};

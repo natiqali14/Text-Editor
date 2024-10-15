@@ -30,7 +30,7 @@ namespace Cold
     };
     class Page {
     public:
-        Page();
+        Page(i32 fd);
         ~Page();
         void add_character(Character entry);
         void add_row();
@@ -43,7 +43,10 @@ namespace Cold
         void cursor_move_down();
         void set_cursor_position(glm::vec2 position);
         void add_character_at_index(Character entry);
-        void move_row(u32 row_to_move, u32 target_row);
+        void move_row(std::vector<CharacterSPtr>& buffer_to_move, std::vector<CharacterSPtr>& target_buffer, f32 y_pos);
+
+        void add_existing_content();
+        void write_back_data();
     private:
         std::vector<RowData> character_grid;
         Cursor cursor;
@@ -51,5 +54,6 @@ namespace Cold
         f32 camera_to_move_bottom_value{0};
         entry_state current_state{START};
         bool b_is_dirty {false};
+        i32 current_fd;
     };
 } // namespace Cold

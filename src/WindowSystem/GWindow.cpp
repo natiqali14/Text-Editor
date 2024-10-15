@@ -1,6 +1,7 @@
 #include "GWindow.h"
 #include "WindowSystemUtility.h"
 #include <iostream>
+#include "../FileHelper.h"
 GWindow::GWindow(u16 w, u16 h, std::string w_name)
 : width(w)
 , height(h)
@@ -89,6 +90,7 @@ void GWindow::key_input_callback(GLFWwindow *w, int key, int scancode, int actio
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
             page->add_row();
         }
+        break;
     }
     case GLFW_KEY_RIGHT: {
         if (action == GLFW_RELEASE) return;
@@ -126,13 +128,16 @@ void GWindow::swap_buffer()
 
 GWindow::~GWindow()
 {
+    delete page;
     glfwSetWindowShouldClose(window, 1);
     glfwDestroyWindow(window);
 }
 
 void GWindow::create_page()
 {
-    page = new Cold::Page;
+    auto fd = Cold::FileHelper::open_file("/Users/frio/Desktop/text_editor/test.txt");
+    page = new Cold::Page(fd);
+    page->add_existing_content();
 }
 
 void GWindow::mouse_input_callback(GLFWwindow *window, f64 x_pos, f64 y_pos)

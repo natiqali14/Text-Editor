@@ -6,6 +6,7 @@ namespace Cold
     {
         if (instance) return instance;
         instance = new Camera;
+        return instance;
     }
 
     void Camera::delete_camera()
