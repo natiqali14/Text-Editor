@@ -25,4 +25,9 @@ namespace Cold
         return duration_cast<seconds>(now - start).count();
     }
 
+    void Clock::reset_clock()
+    {
+        start = high_resolution_clock::now();
+    }
+
 } // namespace Cold

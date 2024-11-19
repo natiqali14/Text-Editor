@@ -12,6 +12,7 @@ struct EditorSettings {
     f32 line_spacing {10.f};
     f32 offset_on_delete_char{40.f};
     f32 start_x_point {30.f};
+    f32 start_y_point {screen_height - (font_pixel_size * char_scale_factor  * 2)};
 };
 
 inline static EditorSettings editor_settings;

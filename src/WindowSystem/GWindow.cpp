@@ -58,16 +58,7 @@ void GWindow::key_input_callback(GLFWwindow *w, int key, int scancode, int actio
     }
     switch (key)
     {
-    case GLFW_KEY_RIGHT_SHIFT:
-    case GLFW_KEY_LEFT_SHIFT:
-    {
-        if (action == GLFW_PRESS) b_shit_pressed = true;
-        if (action == GLFW_RELEASE) b_shit_pressed = false;
-        break;
-    }
-
-
-    case 32 ... 126: {
+        case 32 ... 126: {
         if (action == GLFW_RELEASE) break;
         if (key >= 65 && key <= 90) {
             if (!(b_shit_pressed)) key += 32;
@@ -76,35 +67,55 @@ void GWindow::key_input_callback(GLFWwindow *w, int key, int scancode, int actio
         else
             page->add_character(key);
         break;
-    }
-
-    case GLFW_KEY_BACKSPACE: {
-        if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-            page->delete_current_character();
         }
-        
-        break;
-    }
-
-    case GLFW_KEY_ENTER: {
-        if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-            page->add_row();
+        case GLFW_KEY_RIGHT_SHIFT:
+        case GLFW_KEY_LEFT_SHIFT:
+        {
+            if (action == GLFW_PRESS) b_shit_pressed = true;
+            if (action == GLFW_RELEASE) b_shit_pressed = false;
+            break;
         }
-        break;
-    }
-    case GLFW_KEY_RIGHT: {
-        if (action == GLFW_RELEASE) return;
-        page->cursor_move_forward();
-        break;
-    }
-    case GLFW_KEY_LEFT: {
-        if (action == GLFW_RELEASE) return;
-        page->cursor_move_backward();
-        break;
-    }
+
+
+        case GLFW_KEY_BACKSPACE: {
+            if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+                page->delete_current_character();
+            }
+            
+            break;
+        }
+
+        case GLFW_KEY_ENTER: {
+            if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+                page->add_row();
+            }
+            break;
+        }
+        case GLFW_KEY_RIGHT: {
+            if (action == GLFW_RELEASE) return;
+            page->cursor_move_forward();
+            break;
+        }
+        case GLFW_KEY_LEFT: {
+            if (action == GLFW_RELEASE) return;
+            page->cursor_move_backward();
+            break;
+        }
+
+        case GLFW_KEY_UP: {
+            if (action == GLFW_RELEASE) return;
+            page->cursor_move_up();
+            break;
+        }
+
+        case GLFW_KEY_DOWN: {
+            if (action == GLFW_RELEASE) return;
+            page->cursor_move_down();
+            break;
+        }
     
-    default:
-        break;
+        default:
+            break;
     }
 }
 

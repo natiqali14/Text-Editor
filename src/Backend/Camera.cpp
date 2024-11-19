@@ -30,7 +30,6 @@ namespace Cold
         x_end -= points;
         
         projection = glm::ortho(x_start, x_end, y_start, y_end, -1.f, 1.f);
-
     }
 
     void Camera::camera_move_right(f32 points)
@@ -43,14 +42,20 @@ namespace Cold
 
     void Camera::camera_move_up(f32 points)
     {
-        if ((y_end + points > editor_settings.screen_height)) return;
-        y_start += points;
-        y_end += points;
+        if ((y_end + points > editor_settings.screen_height)) {
+            y_start = 0;
+            y_end = editor_settings.start_y_point;
+        }
+        else {
+            y_start += points;
+            y_end += points;
+        }
         projection = glm::ortho(x_start, x_end, y_start, y_end, -1.f, 1.f);
     }
 
     void Camera::camera_move_down(f32 points)
     {
+        std::cout << "[camera_move_down] " << y_start << " " << y_end << " "<< points <<  "\n";
         y_start -= points;
         y_end -= points;
         projection = glm::ortho(x_start, x_end, y_start, y_end, -1.f, 1.f);

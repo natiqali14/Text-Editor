@@ -22,15 +22,12 @@ int main() {
 
    
     // --------------------------------  Creating main window  --------------------------------
-
-    
-    std::cout << "Hello World\n";
     Cold::RendererSystem::initialise("/Users/frio/Desktop/text_editor/Roboto-Light.ttf");
 
     main_window->create_page();
     
-    glEnable(GL_BLEND);//enable blinding
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);//to handel transperancy images
+    glEnable(GL_BLEND);  //enable blinding
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  //to handel transperancy images
     
     Cold::Clock main_clock = Cold::Clock();
     auto start_time = main_clock.get_time_in_us();

@@ -4,6 +4,8 @@
 #include <vector>
 #include "Character.h"
 #include <memory>
+#include "../../Clock/Clock.h"
+#include <array>
 namespace Cold
 {
     
@@ -17,10 +19,11 @@ namespace Cold
         glm::vec2 current_position;
         glm::vec2 current_scale;
         bool b_should_hide{false};
-        f32 blink_freq{500}; // in ms
         u32 current_index {0};
         u32 current_row{0};
-        
+        u32 cursor_blink_time{500}; // in ms
+        Clock cursor_clock;
+        bool should_blink{true};        
     };
     enum entry_state {
         START = 0,
@@ -44,9 +47,10 @@ namespace Cold
         void set_cursor_position(glm::vec2 position);
         void add_character_at_index(Character entry);
         void move_row(std::vector<CharacterSPtr>& buffer_to_move, std::vector<CharacterSPtr>& target_buffer, f32 y_pos);
-
         void add_existing_content();
         void write_back_data();
+        void paste();
+        void create_copy_buffer();
     private:
         std::vector<RowData> character_grid;
         Cursor cursor;
@@ -55,5 +59,9 @@ namespace Cold
         entry_state current_state{START};
         bool b_is_dirty {false};
         i32 current_fd;
+        f32 row_offset {0};
+        std::array<std::pair<u32, u32>, 2> select_range;
+        std::vector<std::vector<Character>> copy_buffer;
+        bool shift_pressed {false};
     };
 } // namespace Cold

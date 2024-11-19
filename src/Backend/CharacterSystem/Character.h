@@ -34,6 +34,8 @@ namespace Cold
         Character entry;
         f32 size;
         std::shared_ptr<CharacterInfo> prev;
+        static inline f32 x_space_factor {0.1};
+        u8 selected {0};
     };
     using CharacterSPtr = std::shared_ptr<CharacterInfo>;
 } // namespace Cold

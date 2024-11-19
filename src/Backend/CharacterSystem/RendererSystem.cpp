@@ -69,4 +69,19 @@ namespace Cold
     return instance->cursor_surface;
     }
 
+    void RendererSystem::pass_uniform_to_cursor_float(f32 value, const std::string& name)
+    {
+        glUseProgram(instance->cursor_program_id);
+        auto loc = glGetUniformLocation(instance->cursor_program_id, name.c_str());
+        glUniform1f(loc, value);
+    }
+
+    void RendererSystem::pass_uniform_to_cursor_float_3(glm::vec3 color, const std::string &name)
+    {
+        glUseProgram(instance->cursor_program_id);
+        auto loc = glGetUniformLocation(instance->cursor_program_id, name.c_str());
+        glUniform3f(loc, color.x, color.y, color.z);
+    }
+
+
 } // namespace Cold

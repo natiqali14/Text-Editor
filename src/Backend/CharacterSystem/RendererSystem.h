@@ -15,6 +15,8 @@ namespace Cold
         static void draw_character(Character character, glm::vec2 position, glm::vec2 scale);
         static Sqaure* get_surface();
         static Sqaure* get_cursor_surface();
+        static void pass_uniform_to_cursor_float(f32 value, const std::string& name);
+        static void pass_uniform_to_cursor_float_3(glm::vec3 color, const std::string& name);
     private:
         Sqaure* rect = nullptr;
         u32 program_id;

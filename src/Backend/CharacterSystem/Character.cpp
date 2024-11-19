@@ -9,11 +9,11 @@ namespace Cold
     {
         size = editor_settings.char_scale_factor * editor_settings.font_pixel_size;
         position_to_ret = current_position;
-        current_position.x += (this->data->bearing_x * size);
-        current_position.y -= ((this->data->relative_height - this->data->bearing_y) * size);
+        current_position.x += (this->data->bearing_x * size * 2);
+        current_position.y -= ((this->data->relative_height - this->data->bearing_y) * size * 2);
         this->current_scale.x = this->data->width * editor_settings.char_scale_factor;
-        this->current_scale.y = this->data->height * editor_settings.char_scale_factor; // TODO this is wrong visually
-        position_to_ret.x += (this->data->advance * size * 1.9);
+        this->current_scale.y = this->data->height * editor_settings.char_scale_factor; 
+        position_to_ret.x += (this->data->advance * size * 2) + (size * x_space_factor);
         std::cout << "CharacterInfo Constructed\n";
     }
 
@@ -34,8 +34,6 @@ namespace Cold
 
     void CharacterInfo::draw()
     {
-        if (prev)
-            reset_character_position(prev->get_next_position());
         RendererSystem::get_surface()->draw(data->tex_id, current_position, current_scale);
     }
 
@@ -53,11 +51,11 @@ namespace Cold
     {
         current_position = position;
         position_to_ret = current_position;
-        current_position.x += (this->data->bearing_x * size);
-        current_position.y -= ((this->data->relative_height - this->data->bearing_y) * size);
+        current_position.x += (this->data->bearing_x * size * 2);
+        current_position.y -= ((this->data->relative_height - this->data->bearing_y) * size * 2);
         this->current_scale.x = this->data->width * editor_settings.char_scale_factor;
-        this->current_scale.y = this->data->height * editor_settings.char_scale_factor; // TODO this is wrong visually
-        position_to_ret.x += (this->data->advance * size * 1.9);
+        this->current_scale.y = this->data->height * editor_settings.char_scale_factor;
+        position_to_ret.x += (this->data->advance * size * 2)+ (size * x_space_factor);
     }
 
     void CharacterInfo::reset_character_y_position(f32 y_pos)
