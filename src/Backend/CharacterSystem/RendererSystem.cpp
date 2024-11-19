@@ -9,10 +9,11 @@
 namespace Cold
 {
     static RendererSystem* instance = nullptr;
-    void RendererSystem::initialise(const std::string& path)
+    bool RendererSystem::initialise(const std::string& path)
     {
         instance = new RendererSystem;
-        FontSystem::initialise(path);
+        auto ret = FontSystem::initialise(path);
+        if (!ret) return false;
 
         std::ifstream file ("/Users/frio/Desktop/text_editor/Shaders/text_vert.vert"); // TODO make it relative
         std::stringstream ss;
@@ -41,6 +42,7 @@ namespace Cold
         instance->cursor_surface = new Sqaure(instance->cursor_program_id);
 
         file3.close();
+        return true;
     }
 
     void RendererSystem::shutdown()
@@ -81,6 +83,19 @@ namespace Cold
         glUseProgram(instance->cursor_program_id);
         auto loc = glGetUniformLocation(instance->cursor_program_id, name.c_str());
         glUniform3f(loc, color.x, color.y, color.z);
+    }
+
+    void RendererSystem::pass_uniform_float_3(glm::vec3 color, const std::string& name, u32 p_id) {
+        glUseProgram(p_id);
+        auto loc = glGetUniformLocation(p_id, name.c_str());
+        glUniform3f(loc, color.x, color.y, color.z);
+    }
+
+    u32 RendererSystem::get_p_id_for_current() {
+        return instance->current_program_id;
+    }
+    u32 RendererSystem::get_p_id_for_cursor() {
+        return instance->cursor_program_id;
     }
 
 

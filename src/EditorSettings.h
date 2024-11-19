@@ -13,6 +13,9 @@ struct EditorSettings {
     f32 offset_on_delete_char{40.f};
     f32 start_x_point {30.f};
     f32 start_y_point {screen_height - (font_pixel_size * char_scale_factor  * 2)};
+
+    glm::vec3 background_color{0,0,0};
+    glm::vec3 font_color {1,1,1};
 };
 
 inline static EditorSettings editor_settings;

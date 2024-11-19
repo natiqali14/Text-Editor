@@ -41,7 +41,6 @@ namespace Cold
 
     void Page::write_back_data()
     {
-        return;
         FileHelper::close_file_and_open_it_again(current_fd);
         for (auto& buffer : character_grid) {
             std::stringstream ss;
@@ -282,6 +281,7 @@ namespace Cold
     void Page::run_loop()
     {
         // ------------------------------------  Characters  -------------------------------- //
+        RendererSystem::pass_uniform_float_3(editor_settings.font_color, "font_color", RendererSystem::get_p_id_for_current());
         for (auto row : character_grid) {
             for (auto c : row.buffer) {
                c->draw();
@@ -299,7 +299,7 @@ namespace Cold
             cursor.cursor_clock.reset_clock();
         }
         RendererSystem::pass_uniform_to_cursor_float(cursor.should_blink ? 1.0 : 0.0, "hide");
-        RendererSystem::pass_uniform_to_cursor_float_3({1.0,1.0,1.0}, "color");
+        RendererSystem::pass_uniform_float_3(cursor.color, "color", RendererSystem::get_p_id_for_cursor());
         RendererSystem::get_cursor_surface()->draw(0,cursor_pos, {.7, y_scale});
 
     }

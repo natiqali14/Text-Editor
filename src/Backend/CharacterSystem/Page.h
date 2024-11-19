@@ -22,6 +22,7 @@ namespace Cold
         u32 current_index {0};
         u32 current_row{0};
         u32 cursor_blink_time{500}; // in ms
+        glm::vec3 color {1,1,1};
         Clock cursor_clock;
         bool should_blink{true};        
     };

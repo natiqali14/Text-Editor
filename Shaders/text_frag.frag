@@ -3,7 +3,7 @@ in vec2 tc;
 out vec4 FragColor;
 
 uniform sampler2D frameTexture;  // The single-channel texture for the glyph
-
+uniform vec3 font_color;
 void main() {
     // Sample the glyph texture (single-channel, grayscale)
     vec2 uv = tc;
@@ -11,5 +11,5 @@ void main() {
     float alpha = texture(frameTexture, uv).r;
     
     // Set the output color, applying the sampled alpha value
-    FragColor = vec4(1.0,1.0,1.0,alpha);
+    FragColor = vec4(vec3(font_color),alpha);
 }

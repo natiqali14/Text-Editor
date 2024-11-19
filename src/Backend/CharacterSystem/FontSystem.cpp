@@ -5,16 +5,18 @@
 namespace Cold
 {
     static FontSystem* instance = nullptr;;
-    void FontSystem::initialise(const std::string& path)
+    bool FontSystem::initialise(const std::string& path)
     {
         instance = new FontSystem;
         instance->current_path = path;
         if (FT_Init_FreeType(&instance->font_lib)) {
             std::cerr << "Could not initialize FreeType library" << std::endl;
+            return false;
         }
 
         if (FT_New_Face(instance->font_lib, path.c_str(), 0, &instance->font_face)) {
             std::cerr << "Could not load font" << std::endl;
+            return false;
         }
 
         // Set the font size (e.g., 48 pixels)
@@ -22,6 +24,7 @@ namespace Cold
         FT_Set_Pixel_Sizes(instance->font_face, 0, instance->current_pixel_size);
 
         prepare_all_characters();
+        return true;
     }
 
     void FontSystem::shutdown()

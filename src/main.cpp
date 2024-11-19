@@ -5,11 +5,23 @@
 #include <WindowSystemUtility.h>
 #include <GWindow.h>
 #include "Backend/CharacterSystem/RendererSystem.h"
+#include <filesystem>
 #include <Clock.h>
+#include "EditorSettings.h"
 #include "FileHelper.h"
-int main() {
+int main(int args, char* argv[]) {
 
 
+    std::string file;
+    std::string input_file;
+    if (args > 2) {
+        file  = argv[1];
+        input_file = argv[2];
+    }
+    else {
+        std::cerr << "Invalid arguments\n";
+        return 1;
+    }
     // --------------------------------  Creating main window  --------------------------------
 
     WindowSystemUtility::initialise_glfw();
@@ -22,9 +34,10 @@ int main() {
 
    
     // --------------------------------  Creating main window  --------------------------------
-    Cold::RendererSystem::initialise("/Users/frio/Desktop/text_editor/Roboto-Light.ttf");
+    auto ret = Cold::RendererSystem::initialise(file);
+    if (!ret) return 1;
 
-    main_window->create_page();
+    main_window->create_page(input_file);
     
     glEnable(GL_BLEND);  //enable blinding
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  //to handel transperancy images
@@ -35,7 +48,7 @@ int main() {
     while (!main_window->should_close_window()) 
     {
         auto loop_start_time = main_clock.get_time_in_us();
-        glClearColor(0,0,0,1);
+        glClearColor(editor_settings.background_color.x,editor_settings.background_color.y,editor_settings.background_color.z,1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         main_window->swap_buffer();
         if (loop_start_time - poll_event_time > 1) {

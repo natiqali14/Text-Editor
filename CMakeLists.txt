@@ -44,7 +44,7 @@ file(GLOB_RECURSE SOURCES
 )
 
 set(CMAKE_BUILD_TYPE Debug)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 # Create executable
 add_executable(app ${SOURCES})
 

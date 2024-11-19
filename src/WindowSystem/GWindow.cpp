@@ -144,9 +144,9 @@ GWindow::~GWindow()
     glfwDestroyWindow(window);
 }
 
-void GWindow::create_page()
+void GWindow::create_page(const std::string& path)
 {
-    auto fd = Cold::FileHelper::open_file("/Users/frio/Desktop/text_editor/test.txt");
+    auto fd = Cold::FileHelper::open_file(path);
     page = new Cold::Page(fd);
     page->add_existing_content();
 }

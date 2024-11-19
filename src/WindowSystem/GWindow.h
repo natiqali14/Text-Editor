@@ -22,7 +22,7 @@ public:
     ~GWindow();
 
     // TODO move from here
-    void create_page();
+    void create_page(const std::string& path);
 private:
     bool b_shit_pressed{false};
     bool b_caps_lock_on{false};

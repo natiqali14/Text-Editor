@@ -31,7 +31,7 @@ namespace Cold
 
     class FontSystem {
     public:
-        static void initialise(const std::string& path);
+        static bool initialise(const std::string& path);
         static void shutdown();
         static void prepare_font_data(Character character);
         static void prepare_texture(Character character);
